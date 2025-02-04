@@ -1,1 +1,380 @@
+package othello.game;
 
+import java.util.ArrayList;
+
+/**
+ * Keep track of all tokens on the board, what the board looks like at the
+ * start of the game, what the players tokens look like ('X' and 'O'), whether
+ * given coordinates are on the board, whether either of the players have a move
+ * somewhere on the board, what happens when a player makes a move at a specific
+ * location (the opposite players tokens are flipped).
+ *
+ * Othello depends on OthelloBoard.
+ *
+ */
+public class OthelloBoard {
+    public static final char EMPTY = ' ', P1 = 'X', P2 = 'O', BOTH = 'B';
+    private int dim = 8;
+    private char[][] board;
+    private ArrayList<Move> flipped;
+
+    /**
+     * Initializes a new othello board of size dim
+     * @param dim	size of othello board
+     */
+    public OthelloBoard(int dim) {
+        this.dim = dim;
+        this.flipped = new ArrayList<Move>();
+        board = new char[this.dim][this.dim];
+        for (int row = 0; row < this.dim; row++) {
+            for (int col = 0; col < this.dim; col++) {
+                this.board[row][col] = EMPTY;
+            }
+        }
+        int mid = this.dim / 2;
+        this.board[mid - 1][mid - 1] = this.board[mid][mid] = P1;
+        this.board[mid][mid - 1] = this.board[mid - 1][mid] = P2;
+    }
+
+    /**
+     * Returns dimension of OthelloBoard
+     * @return dimension of the OthelloBoard
+     */
+    public int getDimension() {
+        return this.dim;
+    }
+
+    /**
+     *
+     * @param player either P1 or P2
+     * @return P2 or P1, the opposite of player
+     */
+    public static char otherPlayer(char player) {
+        if(player == P1){
+            return P2;
+        } else if(player == P2){
+            return P1;
+        }
+        return EMPTY;
+    }
+
+    /**
+     *
+     * @param row starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @return P1,P2 or EMPTY, EMPTY is returned for an invalid (row,col)
+     */
+    public char get(int row, int col) {
+        if(validCoordinate(row, col)) {
+            if (board[row][col] == P1) {
+                return P1;
+            } else if (board[row][col] == P2) {
+                return P2;
+            }
+        }
+        return EMPTY;
+    }
+
+    /**
+     *
+     * @param row starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @return whether (row,col) is a position on the board. Example: (6,12) is not
+     *         a position on the board.
+     */
+    private boolean validCoordinate(int row, int col) {
+        return row >= 0 && row < dim && col >= 0 && col < dim;
+    }
+
+    /**
+     * Check if there is an alternation of P1 next to P2, starting at (row,col) in
+     * direction (drow,dcol). That is, starting at (row,col) and heading in
+     * direction (drow,dcol), you encounter a sequence of at least one P1 followed
+     * by a P2, or at least one P2 followed by a P1. The board is not modified by
+     * this method. Why is this method important? If
+     * alternation(row,col,drow,dcol)==P1, then placing P1 right before (row,col),
+     * assuming that square is EMPTY, is a valid move, resulting in a collection of
+     * P2 being flipped.
+     *
+     * @param row  starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col  starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param drow the row direction, in {-1,0,1}
+     * @param dcol the col direction, in {-1,0,1}
+     * @return P1, if there is an alternation P2 ...P2 P1, or P2 if there is an
+     *         alternation P1 ... P1 P2 in direction (dx,dy), EMPTY if there is no
+     *         alternation
+     */
+    private char alternation(int row, int col, int drow, int dcol) {
+        // No alternation for direction (0, 0)
+        // Next tile in drow and dcol MUST be valid
+        int currRow = row + drow;
+        int currCol = col + dcol;
+        if(drow == 0 && dcol == 0 ||
+                !validCoordinate(currRow, currCol))
+            return EMPTY;
+
+        // Check for an alternation
+        char playerOnTile = get(currRow, currCol);
+        char otherPlayer = otherPlayer(playerOnTile);
+        while(validCoordinate(currRow, currCol)){
+            // If current tile is empty, no possible alternation
+            if(get(currRow, currCol) == EMPTY)
+                return EMPTY;
+
+            if(get(currRow, currCol) == otherPlayer){
+                return otherPlayer;
+            }
+
+            // Increment to the next tile in direction (drow, dcol)
+            currRow += drow;
+            currCol += dcol;
+        }
+
+        // No alternation: in case E| P1| P1| P1| P1| P1|
+        return EMPTY;
+    }
+
+
+    /**
+     * flip all other player tokens to player, starting at (row,col) in direction
+     * (drow, dcol). Example: If (drow,dcol)=(0,1) and player==O then XXXO will
+     * result in a flip to OOOO
+     *
+     * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param drow   the row direction, in {-1,0,1}
+     * @param dcol   the col direction, in {-1,0,1}
+     * @param player Either OthelloBoard.P1 or OthelloBoard.P2, the target token to
+     *               flip to.
+     * @return the number of other player tokens actually flipped, -1 if this is not
+     *         a valid move in this one direction, that is, EMPTY or the end of the
+     *         board is reached before seeing a player token.
+     */
+    private int flip(int row, int col, int drow, int dcol, char player) {
+        int currRow = row + drow;
+        int currCol = col + dcol;
+        flipped.clear(); // Clear moves from array
+
+        if (!validCoordinate(currRow, currCol) || get(currRow, currCol) != otherPlayer(player)) {
+            return -1; // Invalid move
+        }
+
+        // Flip all valid tiles
+        while (validCoordinate(currRow, currCol)
+                && get(currRow, currCol) == otherPlayer(player)) {
+            board[currRow][currCol] = player;
+            flipped.add(new Move(currRow, currCol)); // Add to array
+            currRow += drow;
+            currCol += dcol;
+        }
+        return flipped.size();
+    }
+
+    /**
+     * Returns the number of flipped tiles possible at current position, in direction
+     * drow and dcol.
+     * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param drow   the row direction, in {-1,0,1}
+     * @param dcol   the col direction, in {-1,0,1}
+     * @param player Either OthelloBoard.P1 or OthelloBoard.P2, the target token to
+     *                flip to.
+     * @return number of possible flipped tiles
+     */
+    public int getFlippedAt(int row, int col, int drow, int dcol, char player){
+        int count = 0;
+        // there is a possible move here
+        if(hasMove(row, col, drow, dcol) == player){
+            count = flip(row, col, drow, dcol, player);
+            undoMove();
+        }
+        return count;
+    }
+
+    /**
+     * Undoes the previous move made in the game
+     */
+    public void undoMove(){
+        for(Move move: flipped){
+            int row = move.getRow();
+            int col = move.getCol();
+            // Flips the current tile
+            board[row][col] = otherPlayer(get(row, col));
+        }
+    }
+
+    /**
+     * Return which player has a move (row,col) in direction (drow,dcol).
+     *
+     * @param row  starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col  starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param drow the row direction, in {-1,0,1}
+     * @param dcol the col direction, in {-1,0,1}
+     * @return P1,P2,EMPTY
+     */
+    private char hasMove(int row, int col, int drow, int dcol) {
+        return alternation(row, col, drow, dcol);
+    }
+
+    /**
+     *
+     * @return whether P1,P2 or BOTH have a move somewhere on the board, EMPTY if
+     *         neither do.
+     */
+    public char hasMove() {
+        boolean moveP1 = false;
+        boolean moveP2 = false;
+
+        // Check all positions
+        for(int i = 0; i < dim; i++){
+            for(int j = 0; j < dim; j++){
+                if(board[i][j] == EMPTY) {
+                    // Check if there is a move in all 8 directions
+                    if(checkMove(i, j, P1)) moveP1 = true;
+                    if(checkMove(i, j, P2)) moveP2 = true;
+
+                    // early exit if both have moves
+                    if (moveP1 && moveP2) return BOTH;
+                }
+            }
+        }
+        if(moveP1) return P1;
+        if(moveP2) return P2;
+        return EMPTY;
+    }
+
+    /**
+     * Check if the player has a move current position
+     * @param i current row
+     * @param j current col
+     * @param player player character (X or O)
+     * @return True if there is a valid move, false otherwise
+     */
+    private boolean checkMove(int i, int j, char player){
+        // Checks all 8 directions
+        for(int drow = -1; drow <= 1; drow++) {
+            for (int dcol = -1; dcol <= 1; dcol++) {
+                // Skip (0, 0)
+                if(drow == 0 && dcol == 0) continue;
+                char result = hasMove(i, j, drow, dcol);
+                if(result == player){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Make a move for player at position (row,col) according to Othello rules,
+     * making appropriate modifications to the board. Nothing is changed if this is
+     * not a valid move.
+     *
+     * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param player P1 or P2
+     * @return true if player moved successfully at (row,col), false otherwise
+     */
+    public boolean move(int row, int col, char player) {
+        boolean moved = false;
+
+        // If currently in a valid position:
+        if(validCoordinate(row, col) && validMove(row, col, player)){
+            // Change current tile
+            board[row][col] = player;
+            // Check for the flips
+            for(int drow = -1; drow <= 1; drow++){
+                for(int dcol = -1; dcol <= 1; dcol++){
+                    if(hasMove(row, col, drow, dcol) == player){
+                        flip(row, col, drow, dcol, player);
+                        moved = true;
+                    }
+                }
+            }
+        }
+        return moved;
+    }
+
+    /**
+     * Check to see if the player can place a tile in this position
+     * @param row    starting row, in {0,...,dim-1} (typically {0,...,7})
+     * @param col    starting col, in {0,...,dim-1} (typically {0,...,7})
+     * @param player P1 or P2
+     * @return true if the move is valid, false otherwise
+     */
+    public boolean validMove(int row, int col, char player){
+        // if current row is not empty, can't place here
+        if(get(row, col) != EMPTY){
+            return false;
+        }
+
+        // Check if there is a move in all directions
+        for(int drow = -1; drow <= 1; drow++){
+            for(int dcol = -1; dcol <= 1; dcol ++){
+                if(hasMove(row, col, drow, dcol) == player){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param player P1 or P2
+     * @return the number of tokens on the board for player
+     */
+    public int getCount(char player) {
+        int count = 0;
+        for(int i = 0; i < dim; i++){
+            for(int j = 0; j < dim; j++){
+                if(board[i][j] == player){
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @return a string representation of this, just the play area, with no
+     *         additional information. DO NOT MODIFY THIS!!
+     */
+    public String toString() {
+        /**
+         * See assignment web page for sample output.
+         */
+        String s = "";
+        s += "  ";
+        for (int col = 0; col < this.dim; col++) {
+            s += col + " ";
+        }
+        s += '\n';
+
+        s += " +";
+        for (int col = 0; col < this.dim; col++) {
+            s += "-+";
+        }
+        s += '\n';
+
+        for (int row = 0; row < this.dim; row++) {
+            s += row + "|";
+            for (int col = 0; col < this.dim; col++) {
+                s += this.board[row][col] + "|";
+            }
+            s += row + "\n";
+
+            s += " +";
+            for (int col = 0; col < this.dim; col++) {
+                s += "-+";
+            }
+            s += '\n';
+        }
+        s += "  ";
+        for (int col = 0; col < this.dim; col++) {
+            s += col + " ";
+        }
+        s += '\n';
+        return s;
+    }
+}
