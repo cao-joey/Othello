@@ -1,1 +1,43 @@
+package othello.game;
 
+/**
+ * A move in a game of Othello. Holds the position of a tile that is to be
+ * placed.
+ */
+
+public class Move {
+    private int row, col;
+    /**
+     * Initialize a new Move.
+     * @param row	row tile is to be placed at
+     * @param col	col tile is to be placed at
+     */
+    public Move(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    /**
+     * Returns row position
+     * @return row this move is on
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * Returns col position
+     * @return col this move is on
+     */
+    public int getCol() {
+        return col;
+    }
+
+    /**
+     * String representation of Move class
+     * @return	string representation of this move
+     */
+    public String toString() {
+        return "(" + this.row + "," + this.col + ")";
+    }
+}
