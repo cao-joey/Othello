@@ -1,1 +1,61 @@
+package othello.game;
+
+/**
+ * Abstract super class for OthelloControllers. Prints reports after each
+ * move.
+ */
+public abstract class OthelloControllerOut extends OthelloController{
+
+    /**
+     * Method to run the game of Othello. Prints a report after each move.
+     */
+    public void play(){
+        while (!othello.isGameOver()) {
+            this.report();
+            Move move = null;
+            char whosTurn = othello.getWhosTurn();
+            if (whosTurn == OthelloBoard.P1) {
+                move = player1.getMove();
+            } else if (whosTurn == OthelloBoard.P2) {
+                move = player2.getMove();
+            }
+            this.reportMove(whosTurn, move);
+            othello.move(move.getRow(), move.getCol());
+        }
+        this.reportFinal();
+    }
+
+    /**
+     * Prints a string statement about the move that was just made
+     * @param whosTurn  current player's turn
+     * @param move      move to be reported on
+     */
+    protected void reportMove(char whosTurn, Move move) {
+        System.out.println(whosTurn + " makes move " + move + "\n");
+    }
+
+    /**
+     * Prints the board, and whose turn it is next
+     */
+    protected void report() {
+
+        String s = othello.getBoardString() + OthelloBoard.P1 + ":"
+                + othello.getCount(OthelloBoard.P1) + " "
+                + OthelloBoard.P2 + ":" + othello.getCount(OthelloBoard.P2) + "  "
+                + othello.getWhosTurn() + " moves next";
+        System.out.println(s);
+    }
+
+    /**
+     * Prints the final report, ie who won.
+     */
+    protected void reportFinal() {
+
+        String s = othello.getBoardString() + OthelloBoard.P1 + ":"
+                + othello.getCount(OthelloBoard.P1) + " "
+                + OthelloBoard.P2 + ":" + othello.getCount(OthelloBoard.P2)
+                + "  " + othello.getWinner() + " won\n";
+        System.out.println(s);
+    }
+}
 
