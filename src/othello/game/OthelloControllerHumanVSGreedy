@@ -1,5 +1,8 @@
 package othello.game;
 
+/**
+ * Run this class to play a game against a greedy bot.
+ */
 public class OthelloControllerHumanVSGreedy extends OthelloControllerOut{
     /**
      * Initalizes a new OthelloControllerHumanVSGreedy with one human and one
