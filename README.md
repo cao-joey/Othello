@@ -120,12 +120,13 @@ Nothing changed! This is because player O did not make a valid move.
 First, you will need to find yourself an IDE. We recommend IntelliJ mainly because it was the IDE used to create the game. Once you have downloaded the files and have opened them on an IDE of your choosing, first take notice of all the "OthelloController" files we have created. 
 <ol>
   <li>OthelloController</li>
+  <li>OthelloControllerOut</li>
   <li>OthelloControllerHumanVSHuman</li>
   <li>OthelloControllerHumanVSRandom</li>
   <li>OthelloControllerHumanVSGreedy</li>
 </ol>
 
-Ignore `OthelloController`. This is just the abstract class for all the other controllers. If you want to play with a friend, you will want to be running `OthelloControllerHumanVSHuman`. 
+Ignore `OthelloController` and `OthelloControllerOut`. These are just the abstract classes for all the other controllers. If you want to play with a friend, you will want to be running `OthelloControllerHumanVSHuman`. 
 
 Otherwise, you may choose between either the random bot or the greedy bot. 
 - `OthelloControllerHumanVSRandom` will run a game against a bot programmed to make any randomized valid move during its turn.
