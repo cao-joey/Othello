@@ -1,1 +1,32 @@
+package othello.game;
+
+/**
+ * Run this controller to play a game against a random bot.
+ */
+public class OthelloControllerHumanVSRandom extends OthelloControllerOut{
+
+    /**
+     * Initializes a new OthelloControllerHumanVSRandom with one human
+     * and one bot
+     */
+    public OthelloControllerHumanVSRandom() {
+        super();
+        this.player1 = new PlayerHuman(othello, OthelloBoard.P1);
+        this.player2 = new PlayerRandom(othello, OthelloBoard.P2, othello.getBoard());
+    }
+
+    /**
+     * Run main to play a Human (P1) against the computer P2.
+     * The computer uses a random strategy, that is, it randomly picks
+     * one of its possible moves.
+     * The output should be almost identical to that of OthelloControllerHumanVSHuman.
+
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        OthelloControllerHumanVSRandom oc = new OthelloControllerHumanVSRandom();
+        oc.play(); // this should work
+    }
+}
 
