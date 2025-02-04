@@ -1,5 +1,5 @@
 # Othello
-A simple recreation of the classic game Othello using text symbols. 
+A simple recreation of the classic game Othello in Java through the terminal window.
 
 ### Built Using:
 <ul>
