@@ -1,1 +1,70 @@
+package othello.game;
+
+/**
+ * PlayerGreedy makes a move by considering all possible moves that the player
+ * can make. Once considered, it will then play the best possible move
+ * In case of a tie, between two moves, (row1,column1) and (row2,column2)
+ * the one with the smallest row wins. In case both moves have the same row,
+ * then the smaller column wins.
+ */
+
+public class PlayerGreedy extends Player{
+    private OthelloBoard board;
+
+    /**
+     * Constructs a new greedy bot
+     * @param othello	reference to the Othello game
+     * @param player	X or O
+     * @param board		reference to the current OthelloBoard
+     */
+    public PlayerGreedy(Othello othello, char player, OthelloBoard board){
+        super(othello, player);
+        this.board = board;
+    }
+
+    /**
+     * Greedy algorithm for finding the best possible move
+     * @return	move for this player
+     */
+    public Move getMove() {
+        Move greedyMove = null;
+        int maxFlipped = -1;
+
+        for(int i = 0; i < board.getDimension(); i++){
+            for(int j = 0; j < board.getDimension(); j++){
+                if(board.validMove(i, j, player)){
+                    // Check how many tiles flipped in all directions
+                    int currFlipped = getHowManyFlipped(i, j);
+
+                    // Change greedy move if curr pos gives more flipped tiles
+                    if(currFlipped > maxFlipped){
+                        greedyMove = new Move(i, j);
+                        maxFlipped = currFlipped;
+                    }
+                }
+            }
+        }
+        return greedyMove;
+    }
+
+    /**
+     * Checks how many tiles can be flipped in all directions of the current
+     * rol, col.
+     * @param row	current row function is being called on
+     * @param col	current col function is being called on
+     * @return 		returns how many tiles were flipped at this row and col
+     */
+    private int getHowManyFlipped(int row, int col){
+        int currFlipped = 0;
+        for(int drow = -1; drow <= 1; drow++){
+            for(int dcol = -1; dcol <= 1; dcol++){
+                // Skip 0, 0 direction
+                if(drow == 0 && dcol == 0) continue;
+                currFlipped += board.getFlippedAt(row, col, drow, dcol, player);
+
+            }
+        }
+        return currFlipped;
+    }
+}
 
