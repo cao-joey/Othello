@@ -1,1 +1,68 @@
+package othello.game;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * A human player for the Othello game.
+ *
+ */
+public class PlayerHuman extends Player{
+
+    private static final String INVALID_INPUT_MESSAGE = "Invalid number, please enter 1-8";
+    private static final String IO_ERROR_MESSAGE = "I/O Error";
+    private static BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+
+    private Othello othello;
+    private char player;
+
+    /**
+     * Initializes a new PlayerHuman
+     * @param othello	reference to othello game
+     * @param player	X or O
+     */
+    public PlayerHuman(Othello othello, char player) {
+        super(othello, player);
+    }
+
+    /**
+     * Retrieves a move from this player
+     * @return	a move that is to be made by the player
+     */
+    public Move getMove() {
+
+        int row = getMove("row: ");
+        int col = getMove("col: ");
+        return new Move(row, col);
+    }
+
+    /**
+     * Prompts user to input a rol/col they want to place a character into
+     * @param message either "row: " or "col: "
+     * @return	returns the int of the rol/col
+     */
+    private int getMove(String message) {
+
+        int move, lower = 0, upper = 7;
+        while (true) {
+            try {
+                System.out.print(message);
+                String line = PlayerHuman.stdin.readLine();
+                move = Integer.parseInt(line);
+                if (lower <= move && move <= upper) {
+                    return move;
+                } else {
+                    System.out.println(INVALID_INPUT_MESSAGE);
+                }
+            } catch (IOException e) {
+                System.out.println(INVALID_INPUT_MESSAGE);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println(INVALID_INPUT_MESSAGE);
+            }
+        }
+        return -1;
+    }
+}
 
