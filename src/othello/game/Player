@@ -1,1 +1,27 @@
+package othello.game;
 
+/**
+ * an Othello Player (either X or O)
+ */
+public abstract class Player {
+    protected Othello othello;
+    protected char player;
+    protected OthelloBoard board;
+
+    /**
+     * Construct for Player
+     * @param othello   reference to the Othello game
+     * @param player    X or O
+     */
+    public Player(Othello othello, char player){
+        this.othello = othello;
+        this.player = player;
+    }
+
+    /**
+     * Method for all players to make their move
+     * @return  returns the move for this player
+     */
+    public abstract Move getMove();
+
+}
